@@ -1,0 +1,43 @@
+# This is the image we are going add micromaba to:
+FROM bioconductor/bioconductor_docker:devel
+
+USER root
+
+
+USER root
+# copy install scripts
+COPY *.sh /opt 
+
+RUN mkdir -p /opt/install_scripts && \ 
+    mv /opt/install*.sh /opt/install_scripts && \
+    chmod +x /opt/install_scripts/install*.sh
+
+# install tidyverse
+RUN /opt/install_scripts/install_tidyverse.sh
+
+###
+RUN apt-get update
+## Install cran packages
+RUN R -e "install.packages(c('devtools','optparse','ggplot2','cowplot'),\
+                            dependencies=TRUE, \
+                           repos='http://cran.rstudio.com/')"
+
+
+## Install our own package
+
+#COPY /Users/violafanfani/Documents/uni-harvard/repos/NetSciDataCompanion /opt/NetSciDataCompanion 
+#RUN R -e "devtools::install_local('/opt/NetSciDataCompanion', force=TRUE)"
+## Install bioconductior packages                           
+RUN R -e 'BiocManager::install(c("recount3", \
+    "edgeR", "GenomicAlignments", "Biostrings", "SummarizedExperiment", "GenomicFiles","recount",\
+    "TCGAbiolinks", "GenomicDataCommons","limma", "org.Hs.eg.db",ask = F))'
+
+# adding opencontainer labels to link registry to github repository
+LABEL org.opencontainers.image.title="tcga-data-base-r"
+LABEL org.opencontainers.image.description="Basic r docker with tidyverse and recount"
+LABEL org.opencontainers.image.url="https://github.com/violafanfani/tcga-data-base-r"
+LABEL org.opencontainers.image.documentation="https://github.com/violafanfani/tcga-data-base-r"
+LABEL org.opencontainers.image.source="https://github.com/violafanfani/tcga-data-base-r"
+LABEL org.opencontainers.image.vendor="violafanfani"
+LABEL org.opencontainers.image.authors="Viola Fanfani"
+LABEL org.opencontainers.image.revision="v0.0.5"
