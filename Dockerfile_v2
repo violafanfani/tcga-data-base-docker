@@ -1,22 +1,12 @@
-# This is the image we are going add micromaba to:
-FROM bioconductor/bioconductor_docker:devel
+FROM bioconductor/bioconductor_docker:RELEASE_3_18
 
 USER root
-
-
-USER root
-# copy install scripts
-COPY *.sh /opt 
-
-RUN mkdir -p /opt/install_scripts && \ 
-    mv /opt/install*.sh /opt/install_scripts && \
-    chmod +x /opt/install_scripts/install*.sh
-
-# install tidyverse
-RUN /opt/install_scripts/install_tidyverse.sh
-
 ###
 RUN apt-get update
+
+# Install tidyverse from CRAN
+RUN R -e "install.packages('tidyverse', repos='https://cloud.r-project.org')"
+
 ## Install cran packages
 RUN R -e "install.packages(c('devtools','optparse','ggplot2','cowplot'),\
                             dependencies=TRUE, \
@@ -40,4 +30,4 @@ LABEL org.opencontainers.image.documentation="https://github.com/violafanfani/tc
 LABEL org.opencontainers.image.source="https://github.com/violafanfani/tcga-data-base-r"
 LABEL org.opencontainers.image.vendor="violafanfani"
 LABEL org.opencontainers.image.authors="Viola Fanfani"
-LABEL org.opencontainers.image.revision="v0.0.5"
+LABEL org.opencontainers.image.revision="v0.0.6"
