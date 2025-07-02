@@ -1,8 +1,14 @@
-FROM bioconductor/bioconductor_docker:RELEASE_3_18
+FROM bioconductor/bioconductor_docker:RELEASE_3_19
 
 USER root
 ###
 RUN apt-get update
+
+# Install tidyverse and other CRAN packages
+RUN apt-get update && apt-get install -y \
+    libxml2-dev libssl-dev libcurl4-openssl-dev libgit2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Install tidyverse from CRAN
 RUN R -e "install.packages('tidyverse', repos='https://cloud.r-project.org')"
@@ -17,10 +23,15 @@ RUN R -e "install.packages(c('devtools','optparse','ggplot2','cowplot'),\
 
 #COPY /Users/violafanfani/Documents/uni-harvard/repos/NetSciDataCompanion /opt/NetSciDataCompanion 
 #RUN R -e "devtools::install_local('/opt/NetSciDataCompanion', force=TRUE)"
-## Install bioconductior packages                           
+## Install bioconductior packages                       
 RUN R -e 'BiocManager::install(c("recount3", \
     "edgeR", "GenomicAlignments", "Biostrings", "SummarizedExperiment", "GenomicFiles","recount",\
     "TCGAbiolinks", "GenomicDataCommons","limma", "org.Hs.eg.db",ask = F))'
+
+RUN R -e "devtools::install_github('immunogenomics/presto')"
+RUN R -e 'install.packages("remotes")'
+RUN R -e 'remotes::install_github("aet21/EpiSCORE")'
+
 
 # adding opencontainer labels to link registry to github repository
 LABEL org.opencontainers.image.title="tcga-data-base-r"
@@ -30,4 +41,4 @@ LABEL org.opencontainers.image.documentation="https://github.com/violafanfani/tc
 LABEL org.opencontainers.image.source="https://github.com/violafanfani/tcga-data-base-r"
 LABEL org.opencontainers.image.vendor="violafanfani"
 LABEL org.opencontainers.image.authors="Viola Fanfani"
-LABEL org.opencontainers.image.revision="v0.0.6"
+LABEL org.opencontainers.image.revision="v0.0.8"
